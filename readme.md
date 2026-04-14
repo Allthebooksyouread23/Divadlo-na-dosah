@@ -1,6 +1,6 @@
 # Divadlo na dosah - maturitní projekt
 Jan Dašek  2026
-![alt text|775](<l.png>)
+![alt text|775](<l.jpg>)
 ## 1. Stručný popis projektu
 Divadlo na dosah je stolní informační panel postavený na Raspberry Pi a e-paper displeji. Aplikace průběžně zobrazuje divadelní program, umožňuje výběr režimu přes rotační enkodér a v pravidelných intervalech automaticky aktualizuje data ze serveru i-divadlo.cz.
 Projekt je rozdělen do tří hlavních částí:
