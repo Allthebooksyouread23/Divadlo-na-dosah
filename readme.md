@@ -120,7 +120,7 @@ Soubor `db_inspector.py` je pomocný servisní nástroj pro kontrolu databáze. 
 ```
 ## 7.1.1 Schození aplikace 
 ```bash
-    sudo systemctl stop infoboard.service
+sudo systemctl stop infoboard.service
 ```
 ## 7.2 Ruční aktualizace databáze
 ```bash
