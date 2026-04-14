@@ -9,6 +9,12 @@ import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
+DATE_FMT = '%d.%m.%Y'
+
+
+def _date_sort_expression(column_name='date'):
+    return f"substr({column_name}, 7, 4) || '-' || substr({column_name}, 4, 2) || '-' || substr({column_name}, 1, 2)"
+
 # Get database path
 script_dir = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(script_dir, 'theatre.db')
@@ -33,8 +39,19 @@ def get_db_stats():
     total = cursor.fetchone()[0]
     
     # Date range
-    cursor.execute('SELECT MIN(date), MAX(date) FROM inscenations')
-    min_date, max_date = cursor.fetchone()
+    cursor.execute('SELECT date FROM inscenations WHERE date IS NOT NULL AND date != ""')
+    parsed_dates = []
+    for (date_text,) in cursor.fetchall():
+        try:
+            parsed_dates.append(datetime.strptime(date_text, DATE_FMT))
+        except ValueError:
+            continue
+
+    if parsed_dates:
+        min_date = min(parsed_dates).strftime(DATE_FMT)
+        max_date = max(parsed_dates).strftime(DATE_FMT)
+    else:
+        min_date = max_date = 'N/A'
     
     # Records by date
     cursor.execute('SELECT COUNT(DISTINCT date) FROM inscenations')
@@ -73,7 +90,7 @@ def show_by_date():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    cursor.execute('SELECT date, COUNT(*) FROM inscenations GROUP BY date ORDER BY date')
+    cursor.execute(f'SELECT date, COUNT(*) FROM inscenations GROUP BY date ORDER BY {_date_sort_expression()}')
     results = cursor.fetchall()
     
     print(f"\n{'Date':<15} {'Count':<10}")
@@ -96,14 +113,15 @@ def clean_database():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    today = datetime.today().strftime('%d.%m.%Y')
-    cursor.execute('DELETE FROM inscenations WHERE date < ?', (today,))
+    today_display = datetime.today().strftime(DATE_FMT)
+    today_iso = datetime.today().strftime('%Y-%m-%d')
+    cursor.execute(f'DELETE FROM inscenations WHERE {_date_sort_expression()} < ?', (today_iso,))
     deleted = cursor.rowcount
     
     conn.commit()
     conn.close()
     
-    print(f"Deleted {deleted} old records before {today}")
+    print(f"Deleted {deleted} old records before {today_display}")
 
 
 def show_tips():
@@ -114,10 +132,10 @@ def show_tips():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    cursor.execute('''SELECT date, starting_time, name, theatre, stars 
+    cursor.execute(f'''SELECT date, starting_time, name, theatre, stars 
                       FROM inscenations 
                       WHERE tip = 1 
-                      ORDER BY date, starting_time''')
+                      ORDER BY {_date_sort_expression()}, starting_time''')
     results = cursor.fetchall()
     
     if not results:
