@@ -6,7 +6,7 @@ Projekt je rozdělen do tří hlavních částí:
 - sběr dat (web scraping + databáze),
 - ovládání a vykreslování na e-paper displej,
 - automatizovaný provoz (cron, service, skripty).
-![alt text|775](<g:/My Drive/divadlo-infotable/doc/Kopie souboru cad.png>)
+![alt text|775](<readme.png>)
 ## 2. Základní funkční principy
 ## 2.1 Tok dat
 1. Skript scraperu stáhne programy z webu i-divadlo.cz.
